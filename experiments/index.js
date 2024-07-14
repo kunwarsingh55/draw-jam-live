@@ -28,12 +28,14 @@ function startDraw(e) {
     const startY = e.clientY - canvas.offsetTop;
 
 
-    if (tool === 'line') {
-        currentShape = { type: 'line', points: [{ x: startX, y: startY }] };
+    if (tool === 'pen') {
+        currentShape = { type: 'pen', points: [{ x: startX, y: startY }] };
         ctx.beginPath(); // always reset to draw new path
-        ctx.moveTo(startX, startY); // start new path from curr position
     } else if (tool === 'rectangle') {
         currentShape = { type: 'rectangle', startX, startY, width: 0, height: 0 };
+    } else if (tool === 'line') {
+        currentShape = { type: 'line', startX, startY, endX: startX, endY: startY };
+        ctx.beginPath();
     }
 }
 
@@ -43,7 +45,7 @@ function drawing(e) {
     const x = e.clientX - canvas.offsetLeft;
     const y = e.clientY - canvas.offsetTop;
 
-    if (tool === 'line') {
+    if (tool === 'pen') {
         currentShape.points.push({ x, y }); // ppush in incoming points of line
         ctx.lineTo(x, y);
         ctx.stroke();
@@ -54,6 +56,14 @@ function drawing(e) {
         currentShape.height = height;
         redrawCanvas();
         ctx.strokeRect(currentShape.startX, currentShape.startY, width, height);
+    } else if (tool === 'line'){
+        currentShape.endX = x;
+        currentShape.endY = y;
+        redrawCanvas();
+        ctx.beginPath();
+        ctx.moveTo(currentShape.startX, currentShape.startY);
+        ctx.lineTo(x, y);
+        ctx.stroke();
     }
 }
 
@@ -67,7 +77,7 @@ function stopDraw() {
 function redrawCanvas() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     for (const shape of shapes) {
-        if (shape.type === 'line') {
+        if (shape.type === 'pen') {
             ctx.beginPath();
             ctx.moveTo(shape.points[0].x, shape.points[0].y);
             for (const point of shape.points) {
