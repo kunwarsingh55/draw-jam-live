@@ -11,10 +11,12 @@ import { DataContext } from './Contexts/DataContext';
 
 function App() {
 
-  const [username, setUserName] = useState('');
+  const [user, setUser] = useState(null);
+  const [whiteBoardSession, setWhiteBoardSession] = useState(null);
+  
 
   return (
-    <DataContext.Provider value={{ username, setUserName }}>
+    <DataContext.Provider value={{ user, setUser, whiteBoardSession, setWhiteBoardSession }}>
       <Router>
         <Routes>
           <Route path="/" element={<HomePage />} />

@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 
 const LoginPage = () => {
 
-    const {setUserName} = useContext(DataContext);
+    const {setUser} = useContext(DataContext);
 
     const [warnings, setWarnings] = useState([]);
     const [email, setEmail] = useState('');
@@ -24,7 +24,7 @@ const LoginPage = () => {
             
             navigate('/');
             console.log(response.data);
-            setUserName(response.data.username);
+            setUser({username : response.data.username, userId: response.data.userId});
             setWarnings(["Logged In"])
             
             console.log(warnings);

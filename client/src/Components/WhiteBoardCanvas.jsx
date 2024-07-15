@@ -5,6 +5,7 @@ import SaveLoadComponent from './SaveLoadControls';
 
 function WhiteBoardCanvas() {
 
+
   const [isDrawing, setIsDrawing] = useState(false);
   const [tool, setTool] = useState('line');
   const [shapes, setShapes] = useState([]);
@@ -157,7 +158,7 @@ function WhiteBoardCanvas() {
         <button onClick={() => setTool('rectangle')} className='bg-purple-600 p-2 rounded-md'>Rectangle</button>
         <button onClick={() => setTool('pen')} className='bg-purple-600 p-2 rounded-md'>Pen</button>
       </div> */}
-      <canvas ref={canvasRef} width={500} height={500} className='border border-gray-200 m-10 shadow-lg rounded-[1rem]' />
+      <canvas ref={canvasRef} width={700} height={400} className='border border-gray-200 m-10 shadow-lg rounded-[1rem]' />
       <div className='flex gap-5'>
         <ToolBox setTool={setTool} />
         <SaveLoadComponent saveDrawing={saveDrawing} />

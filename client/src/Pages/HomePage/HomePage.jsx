@@ -1,10 +1,29 @@
 import Navbar from "../../Components/NabBar";
 import { DataContext } from "../../Contexts/DataContext";
 import { useContext } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+
 const HomePage = () => {
 
-    const { username } = useContext(DataContext);
+    const navigate = useNavigate();
+
+    const { user, setWhiteBoardSession } = useContext(DataContext);
+
+
+    const newWhiteBoardSession = async () => {
+        let response = await axios.post('http://localhost:3000/api/sessions',
+            {
+                "userId": user.userId
+            }
+        )
+
+        console.log(response.data);
+        setWhiteBoardSession(response.data);
+        navigate('/whiteboard');
+    }
+
+
     return (
         <>
             <div className="h-screen w-screen">
@@ -23,7 +42,7 @@ const HomePage = () => {
                         <button className="rounded-md bg-purple-700 text-white py-3 px-5 min-w-min">Join</button>
                     </div>
 
-                    {username == '' ?
+                    {user == null ?
                         <div className="text-lg mt-5">
                             or<br />
                             Login to create or access your whiteboards.
@@ -32,7 +51,7 @@ const HomePage = () => {
 
                         <div className="flex flex-col gap-4 bg-white rounded-md border-2 border-purple-400 shadow-md  p-6 mt-7">
 
-                            <Link to='/whiteboard'><button className="rounded-md bg-purple-700 text-white py-3 px-5 min-w-min">New White Board</button></Link>
+                            <button onClick={newWhiteBoardSession} className="rounded-md bg-purple-700 text-white py-3 px-5 min-w-min">New White Board</button>
 
                         </div>
 
