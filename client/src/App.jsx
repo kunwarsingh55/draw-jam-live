@@ -31,6 +31,11 @@ function App() {
         // new rectangle, append starting x,y .. w, h changes as cirsor is dragged
         setCurrentShape({ type: 'rectangle', startX, startY, width: 0, height: 0 });
       }
+      else if (tool === 'line') {
+        // new line, append starting x,y, keep ending x, y same.
+        setCurrentShape({ type: 'line', startX, startY, endX: startX, endY: startY });
+        ctx.beginPath();
+      }
     };
 
 
@@ -65,6 +70,20 @@ function App() {
         // preview new
         ctx.strokeRect(currentShape.startX, currentShape.startY, width, height);
       }
+      else if (tool === 'line') {
+        // current cursor cordinates
+        currentShape.endX = x;
+        currentShape.endY = y;
+
+        // change line ending to current cursor point
+        setCurrentShape({ ...currentShape, x, y });
+        
+        redrawCanvas();
+        ctx.beginPath();
+        ctx.moveTo(currentShape.startX, currentShape.startY);
+        ctx.lineTo(x, y);
+        ctx.stroke();
+      }
     };
 
     // mouse up action, draw mode off, append last drawn shape to shapes array
@@ -93,9 +112,9 @@ function App() {
 
   }, [isDrawing, tool, currentShape]);
 
-  // useEffect(() => {
-  //   console.log(shapes);
-  // }, [shapes]);
+  useEffect(() => {
+    console.log(shapes);
+  }, [shapes]);
 
   // clear old shapes, draw new shape which are updated by moving cursor.
   const redrawCanvas = () => {
@@ -114,6 +133,12 @@ function App() {
       }
       else if (shape.type === 'rectangle') {
         ctx.strokeRect(shape.startX, shape.startY, shape.width, shape.height);
+      }
+      else if (shape.type === 'line') {
+        ctx.beginPath();
+        ctx.moveTo(shape.startX, shape.startY);
+        ctx.lineTo(shape.endX, shape.endY);
+        ctx.stroke();
       }
     });
   };
