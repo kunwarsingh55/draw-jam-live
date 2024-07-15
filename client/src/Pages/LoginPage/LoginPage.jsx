@@ -1,6 +1,39 @@
+import { useContext } from "react";
 import Navbar from "../../Components/NabBar";
+import { useState } from "react";
+import axios from 'axios';
+import { DataContext } from "../../Contexts/DataContext";
+import { useNavigate } from "react-router-dom";
+
 
 const LoginPage = () => {
+
+    const {setUserName} = useContext(DataContext);
+
+    const [warnings, setWarnings] = useState([]);
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const navigate = useNavigate();
+    const handleLogin = async () => {
+        
+        try {
+            let response = await axios.post('http://localhost:3000/auth/login', {
+                "email": email,
+                "password": password
+            });
+            
+            navigate('/');
+            console.log(response.data);
+            setUserName(response.data.username);
+            setWarnings(["Logged In"])
+            
+            console.log(warnings);
+
+        } catch (error) {
+            if (typeof (error.response.data.msg) == 'string') setWarnings([error.response.data.msg]);
+            else setWarnings(error.response.data.msg);
+        }
+    }
     return (
         <>
             <div className="h-screen w-screen">
@@ -12,10 +45,20 @@ const LoginPage = () => {
                     <div className="flex flex-col gap-4 bg-white rounded-md border-2 border-purple-400 shadow-md  p-6 mt-14">
 
                         <div className="">Please enter login credentials</div>
-                        <input className="p-2 bg-gray-200 rounded-md" placeholder="Email"></input>
-                        <input className="p-2 bg-gray-200 rounded-md" placeholder="Password"></input>
-                        <button className="rounded-md bg-purple-700 text-white py-3 px-5 min-w-min">Login</button>
+                        <input onChange={(e) => setEmail(e.target.value)} className="p-2 bg-gray-200 rounded-md" placeholder="Email"></input>
+                        <input onChange={(e) => setPassword(e.target.value)} className="p-2 bg-gray-200 rounded-md" placeholder="Password"></input>
+                        <button onClick={handleLogin} className="rounded-md bg-purple-700 text-white py-3 px-5 min-w-min">Login</button>
                     </div>
+
+                    {warnings.length > 0 ?
+                        <div className={warnings[0] == "Logged In" ? "flex flex-col gap-4 bg-white rounded-md border-2 border-blue-500 shadow-md  px-8 py-3 mt-10" : "flex flex-col gap-4 bg-white rounded-md border-2 border-red-500 shadow-md  px-8 py-3 mt-10"}>
+                            {warnings[0] == "Logged In" ? "Login Successful" :
+                                <ul className="text-left list-disc">
+                                    {warnings.map((w) => { return (<li key={w}>{w}</li>) })}
+                                </ul>
+                            }
+                        </div> : ""
+                    }
                 </div>
             </div>
         </>

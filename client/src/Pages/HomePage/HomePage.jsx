@@ -1,7 +1,10 @@
 import Navbar from "../../Components/NabBar";
-
-
+import { DataContext } from "../../Contexts/DataContext";
+import { useContext } from "react";
+import { Link } from "react-router-dom";
 const HomePage = () => {
+
+    const { username } = useContext(DataContext);
     return (
         <>
             <div className="h-screen w-screen">
@@ -20,10 +23,21 @@ const HomePage = () => {
                         <button className="rounded-md bg-purple-700 text-white py-3 px-5 min-w-min">Join</button>
                     </div>
 
-                    <div className="text-lg mt-5">
-                        or<br />
-                        Login to create or access your whiteboards.
-                    </div>
+                    {username == '' ?
+                        <div className="text-lg mt-5">
+                            or<br />
+                            Login to create or access your whiteboards.
+                        </div>
+                        :
+
+                        <div className="flex flex-col gap-4 bg-white rounded-md border-2 border-purple-400 shadow-md  p-6 mt-7">
+
+                            <Link to='/whiteboard'><button className="rounded-md bg-purple-700 text-white py-3 px-5 min-w-min">New White Board</button></Link>
+
+                        </div>
+
+                    }
+
                 </div>
             </div>
 
