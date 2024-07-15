@@ -74,7 +74,6 @@ router.post("/login", async (req, res) => {
         }
 
         // Check if user exists
-        // check if user exists already
         const userCheck = await prisma.user.findFirst({
             where: {
                 email: email
@@ -86,9 +85,8 @@ router.post("/login", async (req, res) => {
 
         // TODO : json web token
         if (userCheck.password === user.data.password) {
-
-            return res.status(200).json({ username: userCheck.username })
-
+            console.log(userCheck);
+            return res.status(200).json({ username: userCheck.username, userId: userCheck.id })
         }
         else {
             return res.status(409).json({ msg: "Wrong credentials" });
