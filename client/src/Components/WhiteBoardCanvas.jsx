@@ -1,17 +1,62 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useContext } from 'react';
 import ToolBox from './ToolBox';
 import SaveLoadComponent from './SaveLoadControls';
-
+import { io } from 'socket.io-client'
+const socket = io('http://localhost:3000')
+import { DataContext } from '../Contexts/DataContext';
 
 function WhiteBoardCanvas() {
 
-
+  const { sessionId, whiteBoardSession } = useContext(DataContext);
   const [isDrawing, setIsDrawing] = useState(false);
   const [tool, setTool] = useState('line');
   const [shapes, setShapes] = useState([]);
   const [currentShape, setCurrentShape] = useState(null);
   const canvasRef = useRef(null);
   const ctxRef = useRef(null);
+  const [isUpdated, setIsUpdated] = useState(false);
+
+  // 1 - Join room with current session ID
+  useEffect(() => {
+    console.log("Session :", whiteBoardSession);
+    if (whiteBoardSession) {
+      const sessionId = whiteBoardSession.newSession.sessionId;
+      socket.emit('joinRoom', sessionId);
+      //console.log("JOINING ROOM WITH ID ----> " + sessionId);
+    }
+  }, []);
+
+  // Listen for drawing data from other clients
+  useEffect(() => {
+    socket.on('drawing', (data) => {
+      console.log("DATA : ", data.data);
+      // dont update itself
+      if (JSON.stringify(data.data) != JSON.stringify(shapes))
+        setShapes(data.data);
+    });
+
+    return () => {
+      socket.off('drawing');
+    };
+  }, []);
+
+  // Emit drawing data to the server
+  useEffect(() => {
+    // emit only if new shape is drawn
+    if (whiteBoardSession && shapes.length > 0 && isUpdated) {
+      let roomId = whiteBoardSession.newSession.sessionId;
+      socket.emit('drawing', { data: shapes, roomId });
+      setIsUpdated(false);
+    }
+  }, [shapes]);
+
+  // redraw canvas after shape update, either by websocket or user draw
+  useEffect(() => {
+    redrawCanvas();
+  }, [shapes]);
+
+
+
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -25,10 +70,12 @@ function WhiteBoardCanvas() {
       const startY = e.clientY - canvas.offsetTop;
       setIsDrawing(true);
 
+
       if (tool === 'pen') {
         // new line, append starting cordinates, rest will be added as cursor will be dragged
         setCurrentShape({ type: 'pen', points: [{ x: startX, y: startY }] });
         ctx.beginPath(); // new path
+        ctx.moveTo(startX, startY);
       }
       else if (tool === 'rectangle') {
         // new rectangle, append starting x,y .. w, h changes as cirsor is dragged
@@ -44,6 +91,7 @@ function WhiteBoardCanvas() {
 
     // mouse move action, update new points of current shape as cursor moves
     const drawing = (e) => {
+      setIsUpdated(true);
       if (!isDrawing || !currentShape) return;
 
       // current cursor cordinates w.r.t canvas 
@@ -97,7 +145,9 @@ function WhiteBoardCanvas() {
       if (currentShape) {
         setShapes((prevShapes) => [...prevShapes, currentShape]);
         setCurrentShape(null);
+
       }
+
     };
 
     // listeners
@@ -113,15 +163,14 @@ function WhiteBoardCanvas() {
       canvas.removeEventListener('mouseup', stopDraw);
     };
 
-  }, [isDrawing, tool, currentShape]);
+  }, [isDrawing, tool, currentShape, shapes]);
 
-  useEffect(() => {
-    console.log(shapes);
-  }, [shapes]);
+
 
   // clear old shapes, draw new shape which are updated by moving cursor.
   const redrawCanvas = () => {
-
+    if (!shapes) return;
+    if (ctxRef.current == null) return
     const ctx = ctxRef.current;
     ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height); // Clear the canvas
 

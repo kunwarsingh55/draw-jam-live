@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { useState } from 'react';
 import './App.css';
 
+
 import HomePage from './Pages/HomePage/HomePage';
 import LoginPage from './Pages/LoginPage/LoginPage';
 import SignupPage from './Pages/SignupPage/SignupPage';
@@ -13,10 +14,11 @@ function App() {
 
   const [user, setUser] = useState(null);
   const [whiteBoardSession, setWhiteBoardSession] = useState(null);
+  const [sessionId, setsessionId] = useState(null);
   
 
   return (
-    <DataContext.Provider value={{ user, setUser, whiteBoardSession, setWhiteBoardSession }}>
+    <DataContext.Provider value={{ user, setUser, whiteBoardSession, setWhiteBoardSession, sessionId, setsessionId}}>
       <Router>
         <Routes>
           <Route path="/" element={<HomePage />} />
