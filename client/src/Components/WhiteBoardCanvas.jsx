@@ -5,6 +5,7 @@ import { io } from 'socket.io-client'
 const socket = io('http://localhost:3000')
 import { DataContext } from '../Contexts/DataContext';
 
+
 function WhiteBoardCanvas() {
 
   const { sessionId, whiteBoardSession } = useContext(DataContext);
@@ -15,6 +16,7 @@ function WhiteBoardCanvas() {
   const canvasRef = useRef(null);
   const ctxRef = useRef(null);
   const [isUpdated, setIsUpdated] = useState(false);
+  const [color, setColor] = useState('#000000')
 
   // 1 - Join room with current session ID
   useEffect(() => {
@@ -70,20 +72,27 @@ function WhiteBoardCanvas() {
       const startY = e.clientY - canvas.offsetTop;
       setIsDrawing(true);
 
+      ctx.strokeStyle = color;
 
       if (tool === 'pen') {
         // new line, append starting cordinates, rest will be added as cursor will be dragged
-        setCurrentShape({ type: 'pen', points: [{ x: startX, y: startY }] });
+        setCurrentShape({ color:color, type: 'pen', points: [{ x: startX, y: startY }] });
+        ctx.beginPath(); // new path
+        ctx.moveTo(startX, startY);
+      }
+      else if (tool === 'erase') {
+        // new line, append starting cordinates, rest will be added as cursor will be dragged
+        setCurrentShape({ color:'#FFFFFF', type: 'pen', points: [{ x: startX, y: startY }] });
         ctx.beginPath(); // new path
         ctx.moveTo(startX, startY);
       }
       else if (tool === 'rectangle') {
         // new rectangle, append starting x,y .. w, h changes as cirsor is dragged
-        setCurrentShape({ type: 'rectangle', startX, startY, width: 0, height: 0 });
+        setCurrentShape({ color:color, type: 'rectangle', startX, startY, width: 0, height: 0 });
       }
       else if (tool === 'line') {
         // new line, append starting x,y, keep ending x, y same.
-        setCurrentShape({ type: 'line', startX, startY, endX: startX, endY: startY });
+        setCurrentShape({ color:color, type: 'line', startX, startY, endX: startX, endY: startY });
         ctx.beginPath();
       }
     };
@@ -97,12 +106,20 @@ function WhiteBoardCanvas() {
       // current cursor cordinates w.r.t canvas 
       const x = e.clientX - canvas.offsetLeft;
       const y = e.clientY - canvas.offsetTop;
-
+      ctx.strokeStyle = currentShape.color;
+      ctx.lineWidth = 5
       if (tool === 'pen') {
         // append new points for line path 
         currentShape.points.push({ x, y });
-
         //draw on canvas
+        ctx.lineTo(x, y);
+        ctx.stroke();
+      }
+      else if (tool === 'erase') {
+        // append new points for line path 
+        currentShape.points.push({ x, y });
+        //draw on canvas
+        ctx.strokeStyle = '#FFFFFF'
         ctx.lineTo(x, y);
         ctx.stroke();
       }
@@ -163,7 +180,7 @@ function WhiteBoardCanvas() {
       canvas.removeEventListener('mouseup', stopDraw);
     };
 
-  }, [isDrawing, tool, currentShape, shapes]);
+  }, [isDrawing, tool, currentShape, shapes, color]);
 
 
 
@@ -175,6 +192,7 @@ function WhiteBoardCanvas() {
     ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height); // Clear the canvas
 
     shapes.forEach((shape) => {
+      ctx.strokeStyle = shape.color;
       if (shape.type === 'pen') {
         ctx.beginPath();
         ctx.moveTo(shape.points[0].x, shape.points[0].y);
@@ -195,7 +213,7 @@ function WhiteBoardCanvas() {
     });
   };
 
-
+  
   const saveDrawing = () => {
     const drawingData = JSON.stringify(shapes);
     console.log("Save Drawing : ", drawingData);
@@ -209,7 +227,7 @@ function WhiteBoardCanvas() {
       </div> */}
       <canvas ref={canvasRef} width={700} height={400} className='border border-gray-200 m-10 shadow-lg rounded-[1rem]' />
       <div className='flex gap-5'>
-        <ToolBox setTool={setTool} />
+        <ToolBox setTool={setTool} color={color} setColor={setColor}/>
         <SaveLoadComponent saveDrawing={saveDrawing} />
       </div>
 
