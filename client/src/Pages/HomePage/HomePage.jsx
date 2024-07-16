@@ -15,6 +15,7 @@ const HomePage = () => {
 
     useEffect(()=>{
         if(!user) return;
+        axios.defaults.withCredentials = true;
         axios.post('https://draw-jam-api.vercel.app/api/sessions/all', 
             {
                 userId: user.userId
@@ -28,6 +29,7 @@ const HomePage = () => {
 
     // create new session and join
     const newWhiteBoardSession = async () => {
+        axios.defaults.withCredentials = true;
         let response = await axios.post('https://draw-jam-api.vercel.app/api/sessions',
             {
                 "userId": user.userId

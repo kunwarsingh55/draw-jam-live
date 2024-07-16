@@ -27,7 +27,7 @@ function WhiteBoardCanvas() {
       socket.emit('joinRoom', sessionId);
       //console.log("JOINING ROOM WITH ID ----> " + sessionId);
     }
-
+    axios.defaults.withCredentials = true;
     axios.get('https://draw-jam-api.vercel.app/api/sessions/' + whiteBoardSession.newSession.sessionId)
       .then((r) => {
         if (r.data.session.sessionData) {

@@ -18,6 +18,7 @@ const SignupPage = () => {
     const handleLogin = async () => {
         
         try {
+            axios.defaults.withCredentials = true;
             let response = await axios.post('https://draw-jam-api.vercel.app/auth/signup', {
                 "username": username,
                 "email": email,

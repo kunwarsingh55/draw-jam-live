@@ -17,6 +17,7 @@ const LoginPage = () => {
     const handleLogin = async () => {
         
         try {
+            axios.defaults.withCredentials = true;
             let response = await axios.post('https://draw-jam-api.vercel.app/auth/login', {
                 "email": email,
                 "password": password
@@ -46,7 +47,7 @@ const LoginPage = () => {
 
                         <div className="">Please enter login credentials</div>
                         <input onChange={(e) => setEmail(e.target.value)} className="p-2 bg-gray-200 rounded-md" placeholder="Email"></input>
-                        <input onChange={(e) => setPassword(e.target.value)} className="p-2 bg-gray-200 rounded-md" placeholder="Password"></input>
+                        <input onChange={(e) => setPassword(e.target.value)} type="password" className="p-2 bg-gray-200 rounded-md" placeholder="Password"></input>
                         <button onClick={handleLogin} className="rounded-md bg-purple-700 text-white py-3 px-5 min-w-min">Login</button>
                     </div>
 
