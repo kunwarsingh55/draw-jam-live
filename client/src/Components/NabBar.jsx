@@ -22,7 +22,7 @@ const Navbar = () => {
                     </div> : ""}
                 </div>
                 <div className='flex gap-3 items-center text-lg font-semibold'>
-                    {url != 'http://localhost:5173/' ? <Link to='/'>Home</Link> : "" }
+                    {url != 'https://draw-jam-api.vercel.app/' ? <Link to='/'>Home</Link> : "" }
                     
                     {user != null ? <button onClick={() => { setUser(null); setWhiteBoardSession(null);  }} >Logout</button> :
                         <>

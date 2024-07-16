@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useContext } from 'react';
 import ToolBox from './ToolBox';
 import SaveLoadComponent from './SaveLoadControls';
 import { io } from 'socket.io-client'
-const socket = io('http://localhost:3000')
+const socket = io('https://draw-jam-api.vercel.app')
 import { DataContext } from '../Contexts/DataContext';
 import axios from 'axios';
 
@@ -28,7 +28,7 @@ function WhiteBoardCanvas() {
       //console.log("JOINING ROOM WITH ID ----> " + sessionId);
     }
 
-    axios.get('http://localhost:3000/api/sessions/' + whiteBoardSession.newSession.sessionId)
+    axios.get('https://draw-jam-api.vercel.app/api/sessions/' + whiteBoardSession.newSession.sessionId)
       .then((r) => {
         if (r.data.session.sessionData) {
           console.log(JSON.parse(r.data.session.sessionData));
@@ -231,7 +231,7 @@ function WhiteBoardCanvas() {
   const saveDrawing = async () => {
     const drawingData = JSON.stringify(shapes);
     console.log("Save Drawing : ", drawingData);
-    let response = await axios.put('http://localhost:3000/api/sessions',
+    let response = await axios.put('https://draw-jam-api.vercel.app/api/sessions',
       {
         sessionData: drawingData,
         sessionId: whiteBoardSession.newSession.sessionId
