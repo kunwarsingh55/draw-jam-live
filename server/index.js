@@ -10,7 +10,7 @@ const { Server } = require("socket.io");
 
 const io = new Server(server, {
     cors: {
-        origin: '*',
+        origin: 'https://draw-jam-frontend.vercel.app/',
     },
 });
 
