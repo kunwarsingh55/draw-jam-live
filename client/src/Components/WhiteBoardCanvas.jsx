@@ -27,6 +27,18 @@ function WhiteBoardCanvas() {
       socket.emit('joinRoom', sessionId);
       //console.log("JOINING ROOM WITH ID ----> " + sessionId);
     }
+
+    axios.get('http://localhost:3000/api/sessions/' + whiteBoardSession.newSession.sessionId)
+      .then((r) => {
+        if (r.data.session.sessionData) {
+          console.log(JSON.parse(r.data.session.sessionData));
+          setShapes(JSON.parse(r.data.session.sessionData));
+        }
+      })
+
+
+
+
   }, []);
 
   // Listen for drawing data from other clients
@@ -72,7 +84,7 @@ function WhiteBoardCanvas() {
       const startX = e.clientX - canvas.offsetLeft;
       const startY = e.clientY - canvas.offsetTop;
       setIsDrawing(true);
-
+      ctx.lineWidth = 5
       ctx.strokeStyle = color;
 
       if (tool === 'pen') {
@@ -194,6 +206,7 @@ function WhiteBoardCanvas() {
 
     shapes.forEach((shape) => {
       ctx.strokeStyle = shape.color;
+      ctx.lineWidth = 5;
       if (shape.type === 'pen') {
         ctx.beginPath();
         ctx.moveTo(shape.points[0].x, shape.points[0].y);
@@ -221,7 +234,7 @@ function WhiteBoardCanvas() {
     let response = await axios.put('http://localhost:3000/api/sessions',
       {
         sessionData: drawingData,
-        sessionId:  whiteBoardSession.newSession.sessionId
+        sessionId: whiteBoardSession.newSession.sessionId
       }
     )
     console.log(response.data);
@@ -237,7 +250,7 @@ function WhiteBoardCanvas() {
       <canvas ref={canvasRef} width={700} height={400} className='border border-gray-200 m-10 shadow-lg rounded-[1rem]' />
       <div className='flex gap-5'>
         <ToolBox setTool={setTool} color={color} setColor={setColor} />
-        <SaveLoadComponent saveDrawing={saveDrawing} saveMessage={saveMessage}/>
+        <SaveLoadComponent saveDrawing={saveDrawing} saveMessage={saveMessage} />
       </div>
 
     </div>

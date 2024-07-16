@@ -85,4 +85,29 @@ router.post('/sessions/all', async (req, res) => {
 });
 
 
+//get session by ID
+router.get('/sessions/:sessionId', async (req, res) => {
+    let sessionId = req.params.sessionId
+    if (!sessionId) return res.status(401).json({ msg: "Bad reuest" });
+
+    try {
+        let session = await prisma.session.findFirst({
+            where: {
+                sessionId : sessionId
+            }
+        })
+        res.status(200).json({
+            session: session
+        });
+
+        // TODO : add error reading case response
+
+    } catch (err) {
+        console.error("Error during session retrieve by ID [/api/session]:", err);
+        res.status(500).json({ msg: "Internal Server Error" });
+    }
+});
+
+
+
 module.exports = router;

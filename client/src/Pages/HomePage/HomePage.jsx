@@ -3,13 +3,27 @@ import { DataContext } from "../../Contexts/DataContext";
 import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useState, useEffect } from "react";
 
 const HomePage = () => {
 
     const navigate = useNavigate();
 
     const { user, setWhiteBoardSession,sessionId, setsessionId, whiteBoardSession } = useContext(DataContext);
+    const [boards, setBoards] = useState([]);
 
+
+    useEffect(()=>{
+        if(!user) return;
+        axios.post('http://localhost:3000/api/sessions/all', 
+            {
+                userId: user.userId
+            }
+        ).then((r)=>{
+            // console.log(r.data.sessions);;
+            setBoards(r.data.sessions);
+        })
+    }, [])
 
 
     // create new session and join
@@ -59,12 +73,20 @@ const HomePage = () => {
                             Login to create or access your whiteboards.
                         </div>
                         :
-
-                        <div className="w-full h-full m-24 flex flex-col gap-4 bg-white rounded-md border-2 border-purple-400 shadow-md  p-6">
-                            <div>
-                                <div>{user.username}'s White Boards</div>
+                        <div className=" m-24 h-80 flex flex-col gap-4 bg-white rounded-md border-2 border-purple-400 shadow-md  p-6">
+                            <div >{user.username}'s White Boards with IDs:</div>
+                            <div className="overflow-scroll">
+                                
+                                {boards.map((b)=>{
+                                    return(
+                                        <>
+                                            <div>{b.sessionId}</div>
+                                        </>
+                                    )
+                                })}
                             </div>
                             <button onClick={newWhiteBoardSession} className="rounded-md bg-purple-700 text-white py-3 px-5 min-w-min">New White Board</button>
+                            
                         </div>
 
                     }
