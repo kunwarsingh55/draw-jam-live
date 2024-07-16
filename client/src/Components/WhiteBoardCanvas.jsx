@@ -4,7 +4,7 @@ import SaveLoadComponent from './SaveLoadControls';
 import { io } from 'socket.io-client'
 const socket = io('http://localhost:3000')
 import { DataContext } from '../Contexts/DataContext';
-
+import axios from 'axios';
 
 function WhiteBoardCanvas() {
 
@@ -17,6 +17,7 @@ function WhiteBoardCanvas() {
   const ctxRef = useRef(null);
   const [isUpdated, setIsUpdated] = useState(false);
   const [color, setColor] = useState('#000000')
+  const [saveMessage, setSaveMessage] = useState('');
 
   // 1 - Join room with current session ID
   useEffect(() => {
@@ -76,23 +77,23 @@ function WhiteBoardCanvas() {
 
       if (tool === 'pen') {
         // new line, append starting cordinates, rest will be added as cursor will be dragged
-        setCurrentShape({ color:color, type: 'pen', points: [{ x: startX, y: startY }] });
+        setCurrentShape({ color: color, type: 'pen', points: [{ x: startX, y: startY }] });
         ctx.beginPath(); // new path
         ctx.moveTo(startX, startY);
       }
       else if (tool === 'erase') {
         // new line, append starting cordinates, rest will be added as cursor will be dragged
-        setCurrentShape({ color:'#FFFFFF', type: 'pen', points: [{ x: startX, y: startY }] });
+        setCurrentShape({ color: '#FFFFFF', type: 'pen', points: [{ x: startX, y: startY }] });
         ctx.beginPath(); // new path
         ctx.moveTo(startX, startY);
       }
       else if (tool === 'rectangle') {
         // new rectangle, append starting x,y .. w, h changes as cirsor is dragged
-        setCurrentShape({ color:color, type: 'rectangle', startX, startY, width: 0, height: 0 });
+        setCurrentShape({ color: color, type: 'rectangle', startX, startY, width: 0, height: 0 });
       }
       else if (tool === 'line') {
         // new line, append starting x,y, keep ending x, y same.
-        setCurrentShape({ color:color, type: 'line', startX, startY, endX: startX, endY: startY });
+        setCurrentShape({ color: color, type: 'line', startX, startY, endX: startX, endY: startY });
         ctx.beginPath();
       }
     };
@@ -213,10 +214,18 @@ function WhiteBoardCanvas() {
     });
   };
 
-  
-  const saveDrawing = () => {
+
+  const saveDrawing = async () => {
     const drawingData = JSON.stringify(shapes);
     console.log("Save Drawing : ", drawingData);
+    let response = await axios.put('http://localhost:3000/api/sessions',
+      {
+        sessionData: drawingData,
+        sessionId:  whiteBoardSession.newSession.sessionId
+      }
+    )
+    console.log(response.data);
+    setSaveMessage("Saved");
   }
 
   return (
@@ -227,8 +236,8 @@ function WhiteBoardCanvas() {
       </div> */}
       <canvas ref={canvasRef} width={700} height={400} className='border border-gray-200 m-10 shadow-lg rounded-[1rem]' />
       <div className='flex gap-5'>
-        <ToolBox setTool={setTool} color={color} setColor={setColor}/>
-        <SaveLoadComponent saveDrawing={saveDrawing} />
+        <ToolBox setTool={setTool} color={color} setColor={setColor} />
+        <SaveLoadComponent saveDrawing={saveDrawing} saveMessage={saveMessage}/>
       </div>
 
     </div>
